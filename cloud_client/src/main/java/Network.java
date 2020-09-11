@@ -1,5 +1,3 @@
-package com.geekbrains.roganov.client;
-
 import com.geekbrains.roganov.common.AbstractMessage;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;

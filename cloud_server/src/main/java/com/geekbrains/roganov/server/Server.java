@@ -26,8 +26,7 @@ public class Server {
                                     new ObjectDecoder(50 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
                                     new MainHandler()
-                            );//можно добавить обработчик который будет кастить все элементы стрима serverFilesList в строки
-                            // и складывать в обычную коллекцию перед отправкой на клиент.
+                            );
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);

@@ -1,5 +1,3 @@
-package com.geekbrains.roganov.client;
-
 import com.geekbrains.roganov.common.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -23,7 +21,10 @@ public class MainController implements Initializable {
     TextField tfFileName;
 
     @FXML
-    ListView<String> filesList;
+    ListView<String> filesListLocal;
+
+    @FXML
+    ListView<String> filesListServer;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -36,12 +37,15 @@ public class MainController implements Initializable {
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
                         FileMessage fm = (FileMessage) am;
-                        Files.write(Paths.get("com\\geekbrains\\roganov\\client\\client_storage" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                        Files.write(Paths.get("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                         refreshLocalFilesList();
                     } else if(am instanceof ServerFilesList){
                         ArrayList<String> serverList = ((ServerFilesList) am).getList();
                         for (String value: serverList) {
-                            Files.createFile(Paths.get("com\\geekbrains\\roganov\\client\\client_storage" + value));
+                            if(!Files.exists(Paths.get("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_client\\src\\main\\java\\client_storage\\" + value)))
+                            {
+                                Files.createFile(Paths.get("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_client\\src\\main\\java\\client_storage\\" + value));
+                            }
                         }
                         refreshLocalFilesList();
                     }
@@ -58,11 +62,11 @@ public class MainController implements Initializable {
     }
 
     public void clickToChooseFileListener(){
-        filesList.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        filesListLocal.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent click) {
                 if(click.getClickCount() == 2) {
-                    tfFileName.setText(filesList.getSelectionModel().getSelectedItem());
+                    tfFileName.setText(filesListLocal.getSelectionModel().getSelectedItem());
                 }
             }
         });
@@ -77,7 +81,7 @@ public class MainController implements Initializable {
 
     public void getServerFilesList(ActionEvent actionEvent) {//доделать обновление серверного списка файлов на клиенте
         updateUI(() -> {
-                filesList.getItems().clear();
+            filesListLocal.getItems().clear();
                 Network.sendMsg(new CommandRequest("/update file list"));
         });
     }
@@ -85,9 +89,9 @@ public class MainController implements Initializable {
     public void refreshLocalFilesList() {
         updateUI(() -> {
             try {
-                filesList.getItems().clear();
-                Files.list(Paths.get("com\\geekbrains\\roganov\\client\\client_storage\\"))
-                        .map(p -> p.getFileName().toString()).forEach(o -> filesList.getItems().add(o));
+                filesListLocal.getItems().clear();
+                Files.list(Paths.get("cloud_client\\src\\main\\java\\client_storage\\"))
+                        .map(p -> p.getFileName().toString()).forEach(o -> filesListLocal.getItems().add(o));
             } catch (IOException e) {
                 e.printStackTrace();
             }

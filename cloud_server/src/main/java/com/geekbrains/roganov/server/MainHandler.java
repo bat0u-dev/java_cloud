@@ -24,11 +24,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 }
             } else if(msg instanceof CommandRequest){
                 if(((CommandRequest) msg).getCommand().equals("/update file list")){
-                    ServerFilesList currList = new ServerFilesList("com\\geekbrains\\roganov\\server\\server_storage");
-                    Path tmp = Files.createDirectory(Paths.get("com\\geekbrains\\roganov\\server\\server_storage\\tmp"));
-                    /*FileOutputStream outputStream = new FileOutputStream(tmp.toString() + "obj.ser");
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                    objectOutputStream.writeObject(currList);*/
+                    ServerFilesList currList = new ServerFilesList("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage");
                     ctx.writeAndFlush(currList);
                 }
             }
