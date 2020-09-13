@@ -18,13 +18,13 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
         try {
             if (msg instanceof FileRequest) {
                 FileRequest fr = (FileRequest) msg;
-                if (Files.exists(Paths.get("com\\geekbrains\\roganov\\server\\server_storage\\" + fr.getFilename()))) {
+                if (Files.exists(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + fr.getFilename()))) {
                     FileMessage fm = new FileMessage(Paths.get("server_storage/" + fr.getFilename()));
                     ctx.writeAndFlush(fm);
                 }
             } else if(msg instanceof CommandRequest){
                 if(((CommandRequest) msg).getCommand().equals("/update file list")){
-                    ServerFilesList currList = new ServerFilesList("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage");
+                    ServerFilesList currList = new ServerFilesList("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\");
                     ctx.writeAndFlush(currList);
                 }
             }

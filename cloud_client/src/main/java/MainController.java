@@ -37,14 +37,14 @@ public class MainController implements Initializable {
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
                         FileMessage fm = (FileMessage) am;
-                        Files.write(Paths.get("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                        Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                         refreshLocalFilesList();
                     } else if(am instanceof ServerFilesList){
                         ArrayList<String> serverList = ((ServerFilesList) am).getList();
                         for (String value: serverList) {
-                            if(!Files.exists(Paths.get("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_client\\src\\main\\java\\client_storage\\" + value)))
+                            if(!Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value)))
                             {
-                                Files.createFile(Paths.get("C:\\Users\\rii\\IdeaProjects\\java_cloud\\cloud_client\\src\\main\\java\\client_storage\\" + value));
+                                Files.createFile(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value));
                             }
                         }
                         refreshLocalFilesList();
