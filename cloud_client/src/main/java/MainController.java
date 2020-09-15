@@ -14,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -26,6 +28,8 @@ public class MainController implements Initializable {
     @FXML
     ListView<String> filesListServer;
 
+    AbstractMessage am;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
@@ -33,20 +37,15 @@ public class MainController implements Initializable {
             try {
                 while (true) {
                     clickToChooseFileListener();
-                    AbstractMessage am = Network.readObject();
+                    am = Network.readObject();
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
                         FileMessage fm = (FileMessage) am;
                         Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
-                        refreshLocalFilesList();
+
                     } else if(am instanceof ServerFilesList){
                         ArrayList<String> serverList = ((ServerFilesList) am).getList();
-                        for (String value: serverList) {
-                            if(!Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value)))
-                            {
-                                Files.createFile(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value));
-                            }
-                        }
+                        refreshServerFilesList(serverList);
                         refreshLocalFilesList();
                     }
                 }
@@ -88,12 +87,31 @@ public class MainController implements Initializable {
 
     public void refreshLocalFilesList() {
         updateUI(() -> {
+            filesListLocal.getItems().clear();
             try {
-                filesListLocal.getItems().clear();
                 Files.list(Paths.get("cloud_client\\src\\main\\java\\client_storage\\"))
-                        .map(p -> p.getFileName().toString()).forEach(o -> filesListLocal.getItems().add(o));
+                        .map(p -> p.getFileName().toString())
+                        .forEach(o -> filesListLocal.getItems().add(o));
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        });
+    }
+
+    public void refreshServerFilesList(ArrayList<String> serverList){
+        updateUI(()->{
+
+            filesListServer.getItems().clear();
+            for (String value: serverList) {
+                filesListServer.getItems().add(value);
+                if(!Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value)))
+                {
+                    try {
+                        Files.createFile(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
