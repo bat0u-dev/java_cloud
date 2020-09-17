@@ -43,7 +43,7 @@ public class MainController implements Initializable {
                         FileMessage fm = (FileMessage) am;
                         Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
 
-                    } else if(am instanceof ServerFilesList){
+                    } else if (am instanceof ServerFilesList) {
                         ArrayList<String> serverList = ((ServerFilesList) am).getList();
                         refreshServerFilesList(serverList);
                         refreshLocalFilesList();
@@ -60,12 +60,12 @@ public class MainController implements Initializable {
         refreshLocalFilesList();
     }
 
-    public void clickToChooseFileListener(){
-        filesListLocal.setOnMouseClicked(new EventHandler<MouseEvent>() {
+    public void clickToChooseFileListener() {
+        filesListServer.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent click) {
-                if(click.getClickCount() == 2) {
-                    tfFileName.setText(filesListLocal.getSelectionModel().getSelectedItem());
+                if (click.getClickCount() == 2) {
+                    tfFileName.setText(filesListServer.getSelectionModel().getSelectedItem());
                 }
             }
         });
@@ -81,7 +81,7 @@ public class MainController implements Initializable {
     public void getServerFilesList(ActionEvent actionEvent) {//доделать обновление серверного списка файлов на клиенте
         updateUI(() -> {
             filesListLocal.getItems().clear();
-                Network.sendMsg(new CommandRequest("/update file list"));
+            Network.sendMsg(new CommandRequest("/update file list"));
         });
     }
 
@@ -98,19 +98,18 @@ public class MainController implements Initializable {
         });
     }
 
-    public void refreshServerFilesList(ArrayList<String> serverList){
-        updateUI(()->{
-
+    public void refreshServerFilesList(ArrayList<String> serverList) {
+        updateUI(() -> {
             filesListServer.getItems().clear();
-            for (String value: serverList) {
+            for (String value : serverList) {
                 filesListServer.getItems().add(value);
-                if(!Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value)))
-                {
-                    try {
-                        Files.createFile(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                if (!Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value))) {
+//                    try {
+                        filesListLocal.getItems().add(value);
+//                        Files.createFile(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value));
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
         });

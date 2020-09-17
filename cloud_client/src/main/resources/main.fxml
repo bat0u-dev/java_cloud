@@ -8,13 +8,14 @@
         <TextField fx:id="tfFileName" focusTraversable="false" promptText="Укажите имя файла на сервере, который хотите скачать" HBox.hgrow="ALWAYS" />
         <Button onAction="#pressOnDownloadBtn" text="Скачать" />
         <Button onAction="#getServerFilesList" text="Обновить с сервера" />
+        <Button text=""/>
     </HBox>
    <HBox>
          <HBox prefWidth="200.0">
-             <Label text="Files on server" />
+             <Label text="Local files" />
          </HBox>
          <HBox>
-             <Label text="Local files" />
+             <Label text="Files on server" />
          </HBox>
    </HBox>
     <HBox>
