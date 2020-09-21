@@ -8,6 +8,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -33,6 +35,8 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
+        Network.sendMsg(new CommandRequest("/update file list"));
+        refreshLocalFilesList();
         Thread t = new Thread(() -> {
             try {
                 while (true) {
@@ -57,7 +61,6 @@ public class MainController implements Initializable {
         });
         t.setDaemon(true);
         t.start();
-        refreshLocalFilesList();
     }
 
     public void clickToChooseFileListener() {
@@ -66,6 +69,14 @@ public class MainController implements Initializable {
             public void handle(MouseEvent click) {
                 if (click.getClickCount() == 2) {
                     tfFileName.setText(filesListServer.getSelectionModel().getSelectedItem());
+                }
+            }
+        });
+        filesListLocal.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent click) {
+                if (click.getClickCount() == 2) {
+                    tfFileName.setText(filesListLocal.getSelectionModel().getSelectedItem());
                 }
             }
         });
@@ -104,12 +115,7 @@ public class MainController implements Initializable {
             for (String value : serverList) {
                 filesListServer.getItems().add(value);
                 if (!Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value))) {
-//                    try {
-                        filesListLocal.getItems().add(value);
-//                        Files.createFile(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + value));
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
+                    filesListLocal.getItems().add(value);
                 }
             }
         });
@@ -124,4 +130,21 @@ public class MainController implements Initializable {
     }
 
 
+    public void pressOnUploadBtn(ActionEvent actionEvent) {
+    }
+
+    public void DelFromLocalStorage(ActionEvent actionEvent) {
+        filesListLocal.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent click) {
+                String deletedFileName = filesListLocal.getSelectionModel().getSelectedItem();
+                try {
+                    Files.delete(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + deletedFileName));
+                    refreshLocalFilesList();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 }

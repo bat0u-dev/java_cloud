@@ -6,20 +6,21 @@
 <VBox fx:id="rootNode" alignment="CENTER" prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);" xmlns="http://javafx.com/javafx/8.0.261" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
     <HBox>
         <TextField fx:id="tfFileName" focusTraversable="false" promptText="Укажите имя файла на сервере, который хотите скачать" HBox.hgrow="ALWAYS" />
-        <Button onAction="#pressOnDownloadBtn" text="Скачать" />
-        <Button onAction="#getServerFilesList" text="Обновить с сервера" />
-        <Button text=""/>
+        <Button  text="Скачать" onAction="#pressOnDownloadBtn"/>
+        <Button  text="Отправить на сервер" onAction="#pressOnUploadBtn"/>
+        <Button fx:id="btnGetSrvList"  text="Обновить с сервера" onAction="#getServerFilesList"/>
+        <Button  text="Удалить на клиенте" onAction="#DelFromLocalStorage"/>
     </HBox>
    <HBox>
          <HBox prefWidth="200.0">
-             <Label text="Local files" />
+             <Label text="Local files" HBox.hgrow="ALWAYS"/>
          </HBox>
          <HBox>
-             <Label text="Files on server" />
+             <Label text="Files on server" HBox.hgrow="ALWAYS"/>
          </HBox>
    </HBox>
     <HBox>
-        <ListView fx:id="filesListLocal" VBox.vgrow="ALWAYS" />
-        <ListView fx:id="filesListServer" VBox.vgrow="ALWAYS" />
+        <ListView fx:id="filesListLocal" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
+        <ListView fx:id="filesListServer" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS"/>
     </HBox>
 </VBox>
