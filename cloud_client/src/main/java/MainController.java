@@ -82,10 +82,12 @@ public class MainController implements Initializable {
         });
     }
 
-    public void pressOnDownloadBtn(ActionEvent actionEvent) {
+    public void pressOnDownloadBtn(ActionEvent actionEvent) {//Добавить проверку на уже существующий файл и диалог о замене существующего файла!
         if (tfFileName.getLength() > 0) {
             Network.sendMsg(new FileRequest(tfFileName.getText()));
             tfFileName.clear();
+            Network.sendMsg(new CommandRequest("/update file list"));
+            refreshLocalFilesList();
         }
     }
 
@@ -131,20 +133,37 @@ public class MainController implements Initializable {
 
 
     public void pressOnUploadBtn(ActionEvent actionEvent) {
+        try {
+            Network.sendMsg(new CommandRequest("/upload"));//Нужно ли в случае с выгрузкой на сервер реализовать с изначальной
+            // отсылкой комманды на ожидание передачи файла с клиента на  сервер???
+            //Thread.sleep(5000);
+            if (tfFileName.getLength() > 0) {
+
+                Network.sendMsg(new FileMessage(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + tfFileName.getText())));
+
+            }
+        } catch (IOException /*| InterruptedException*/ e) {
+            e.printStackTrace();
+        }
+        tfFileName.clear();
+        Network.sendMsg(new CommandRequest("/update file list"));
+        refreshLocalFilesList();
     }
 
-    public void DelFromLocalStorage(ActionEvent actionEvent) {
-        filesListLocal.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent click) {
+    public void DelFromLocalStorage(ActionEvent actionEvent) {//работает нерпавильно! Отладить!
+//        filesListLocal.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent click) {
                 String deletedFileName = filesListLocal.getSelectionModel().getSelectedItem();
                 try {
-                    Files.delete(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + deletedFileName));
-                    refreshLocalFilesList();
+                    if(deletedFileName!=null) {
+                        Files.delete(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + deletedFileName));
+                        refreshLocalFilesList();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
-        });
+//            }
+//        });
     }
 }

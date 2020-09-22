@@ -10,9 +10,11 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
 public class MainHandler extends ChannelInboundHandlerAdapter {
+    boolean getFileMessage;
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
@@ -26,7 +28,14 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 if(((CommandRequest) msg).getCommand().equals("/update file list")){
                     ServerFilesList currList = new ServerFilesList("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\");
                     ctx.writeAndFlush(currList);
+                } else if(((CommandRequest)msg).getCommand().equals("/upload")){
+                    getFileMessage = true;
                 }
+            }
+
+            if(msg instanceof FileMessage && getFileMessage){
+                Files.write(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\"
+                        + ((FileMessage) msg).getFilename()),((FileMessage) msg).getData(),StandardOpenOption.CREATE);
             }
         } finally {
             ReferenceCountUtil.release(msg);
