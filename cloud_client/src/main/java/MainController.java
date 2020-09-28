@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
@@ -45,7 +47,16 @@ public class MainController implements Initializable {
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
                         FileMessage fm = (FileMessage) am;
-                        Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                        Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION,"File " + fm.getFilename()
+                                + " already exists on client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
+                        if(Files.exists(Paths.get(fm.getFilename()))){
+                            fileExistsAlert.showAndWait();
+                        }
+                        if(fileExistsAlert.getResult()==ButtonType.OK) {
+                            Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                        } else {
+                            return;
+                        }
 
                     } else if (am instanceof ServerFilesList) {
                         ArrayList<String> serverList = ((ServerFilesList) am).getList();
