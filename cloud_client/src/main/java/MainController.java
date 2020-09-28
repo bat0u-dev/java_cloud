@@ -47,16 +47,16 @@ public class MainController implements Initializable {
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
                         FileMessage fm = (FileMessage) am;
-                        Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION,"File " + fm.getFilename()
-                                + " already exists on client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
-                        if(Files.exists(Paths.get(fm.getFilename()))){
-                            fileExistsAlert.showAndWait();
-                        }
-                        if(fileExistsAlert.getResult()==ButtonType.OK) {
+//                        Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION,"File " + fm.getFilename()
+//                                + " already exists on client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
+//                        if(Files.exists(Paths.get(fm.getFilename()))){
+//                            fileExistsAlert.showAndWait();
+//                        }
+//                        if(fileExistsAlert.getResult()==ButtonType.OK) {
                             Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
-                        } else {
-                            return;
-                        }
+//                        } else {
+//                            return;
+//                        }
 
                     } else if (am instanceof ServerFilesList) {
                         ArrayList<String> serverList = ((ServerFilesList) am).getList();
