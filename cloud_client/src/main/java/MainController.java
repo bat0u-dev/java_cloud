@@ -1,4 +1,5 @@
 import com.geekbrains.roganov.common.*;
+import com.sun.javafx.scene.SceneHelper;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -47,17 +48,26 @@ public class MainController implements Initializable {
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
                         FileMessage fm = (FileMessage) am;
-//                        Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION,"File " + fm.getFilename()
-//                                + " already exists on client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
-//                        if(Files.exists(Paths.get(fm.getFilename()))){
-//                            fileExistsAlert.showAndWait();
-//                        }
-//                        if(fileExistsAlert.getResult()==ButtonType.OK) {
-                            Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
-//                        } else {
-//                            return;
-//                        }
-
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION, "File " + fm.getFilename()
+                                        + " already exists in client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
+                                if (Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()))) {
+                                    fileExistsAlert.setX(filesListLocal.getLayoutX());//Как получить координаты основного окна? Разобраться!
+                                    fileExistsAlert.setY(filesListLocal.getLayoutY());
+                                    fileExistsAlert.getModality();
+                                    fileExistsAlert.showAndWait();
+                                    if (fileExistsAlert.getResult() == ButtonType.OK) {
+                                        try {
+                                            Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+                        });
                     } else if (am instanceof ServerFilesList) {
                         ArrayList<String> serverList = ((ServerFilesList) am).getList();
                         refreshServerFilesList(serverList);
