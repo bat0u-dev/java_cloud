@@ -8,8 +8,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,7 +26,17 @@ import java.util.List;
 public class MainController implements Initializable {
 
     @FXML
-    Node rootNode;
+    HBox authPanel, mainUIPanel;
+
+    @FXML
+    TextField loginField;
+
+    @FXML
+    TextField passwordField;
+
+    @FXML
+    Button connectBtn;
+
     @FXML
     TextField tfFileName;
 
@@ -34,17 +46,28 @@ public class MainController implements Initializable {
     @FXML
     ListView<String> filesListServer;
 
-    AbstractMessage am;
+    private AbstractMessage am;
+    private boolean isAuthorized;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
-        Network.sendMsg(new CommandRequest("/update file list"));
-        filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        refreshLocalFilesList();
+        setAuthorized(false);
+//        Network.sendMsg(new CommandRequest("/update file list"));
+//        filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+//        filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+//        refreshLocalFilesList();
         Thread t = new Thread(() -> {
             try {
+                while (true) {
+                    if (am instanceof CommandRequest) {
+                        if (((CommandRequest) am).getCommand().equals("/authOK")) {
+                            setAuthorized(true);
+                            break;
+                        }
+                    }
+                }
                 while (true) {
                     clickToChooseFileListener();
                     am = Network.readObject();
@@ -57,8 +80,8 @@ public class MainController implements Initializable {
                                 Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION, "File " + fm.getFilename()
                                         + " already exists in client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
                                 if (Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()))) {
-                                    fileExistsAlert.setX(rootNode.getLayoutX());//Как получить координаты основного окна? Разобраться!
-                                    fileExistsAlert.setY(rootNode.getLayoutY());
+//                                    fileExistsAlert.setX(rootNode.getLayoutX());//Как получить координаты основного окна? Разобраться!
+//                                    fileExistsAlert.setY(rootNode.getLayoutY());
                                     fileExistsAlert.getModality();
                                     fileExistsAlert.showAndWait();
                                     if (fileExistsAlert.getResult() == ButtonType.OK) {
@@ -91,6 +114,28 @@ public class MainController implements Initializable {
         });
         t.setDaemon(true);
         t.start();
+    }
+
+    public void setAuthorized(boolean isAuthorized) {
+        this.isAuthorized = isAuthorized;
+        if (isAuthorized) {
+            authPanel.setVisible(false);
+            authPanel.setManaged(false);
+            mainUIPanel.setVisible(true);
+            mainUIPanel.setManaged(true);
+        } else {
+            authPanel.setVisible(true);
+            authPanel.setManaged(true);
+            mainUIPanel.setVisible(false);
+            mainUIPanel.setManaged(false);
+        }
+    }
+
+    public void sendAuthData() {
+        Network.sendMsg(new CommandRequest("/authorize"));
+//        Network.sendMsg(new AuthorizationData(loginField.getText(), passwordField.getText()));
+        loginField.clear();
+        passwordField.clear();
     }
 
     public void clickToChooseFileListener() {
@@ -142,11 +187,11 @@ public class MainController implements Initializable {
                 e.printStackTrace();
             }
         }
-            Network.sendMsg(new CommandRequest("/stopUpload"));//необходим ли маркер?
+        Network.sendMsg(new CommandRequest("/stopUpload"));//необходим ли маркер?
         // Или будет работать и без него по умолчанию?!Проверить!
-            tfFileName.clear();
-            Network.sendMsg(new CommandRequest("/update file list"));
-            refreshLocalFilesList();
+        tfFileName.clear();
+        Network.sendMsg(new CommandRequest("/update file list"));
+        refreshLocalFilesList();
     }
 
     public void refreshLocalFilesList() {

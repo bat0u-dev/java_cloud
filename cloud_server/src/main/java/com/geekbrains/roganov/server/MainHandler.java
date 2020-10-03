@@ -12,6 +12,7 @@ import java.nio.file.StandardOpenOption;
 public class MainHandler extends ChannelInboundHandlerAdapter {
     boolean getFileMessage;
 
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
@@ -23,6 +24,9 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 }
             } else if (msg instanceof CommandRequest) {
                 switch (((CommandRequest) msg).getCommand()) {
+//                    case "/authorize":
+//                        authorizationProcessed = true;
+//                        break;
                     case "/update file list":
                         ServerFilesList currList = new ServerFilesList("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\");
                         ctx.writeAndFlush(currList);
@@ -40,6 +44,15 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                             + ((FileMessage) msg).getFilename()), ((FileMessage) msg).getData(), StandardOpenOption.CREATE);
                 }
             }
+//            else if(authorizationProcessed){
+//                if(msg instanceof AuthorizationData){
+////                    String userName = DBConnector.getUserNameByLogAndPass(((AuthorizationData) msg).getLogin()
+////                            ,((AuthorizationData) msg).getPassword());
+////                    if(!userName.equals("")){
+//                        ctx.writeAndFlush("/authOK");
+////                    }
+//                }
+//            }
         } finally {
             ReferenceCountUtil.release(msg);
         }

@@ -20,7 +20,7 @@ public class DBConnector {
         String dbURL = "jdbc:mysql://localhost:3306";
         String dbName = "personnel";
         String username = "root";
-        String password = "MASTERKEY";
+        String password = "masterkey";
         try {
             Class.forName(driver).getDeclaredConstructor().newInstance();
 //            System.out.println("Введите наименование базы данных");
@@ -49,6 +49,22 @@ public class DBConnector {
 //                throwables.printStackTrace();
 //            }//закрыть правильно!
         }
+    }
+
+    public static String getUserNameByLogAndPass(String login, String password){
+        try {
+            Statement stmt = connection.createStatement();
+            String query = "SELECT username FROM myJCloudUsers WHERE login = " + login + " AND password = " + password
+            + ";";
+            ResultSet rs = stmt.executeQuery(query);
+            if(rs.next()){
+                return rs.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return "Incorrect authorization data.";
     }
     public static void main(String[] args) {
         //java -classpath c:\Java\mysql-connector-java-8.0.11.jar;c:\Java Program
