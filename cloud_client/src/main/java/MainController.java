@@ -54,13 +54,14 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
         setAuthorized(false);
-//        Network.sendMsg(new CommandRequest("/update file list"));
-//        filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-//        filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-//        refreshLocalFilesList();
+        Network.sendMsg(new CommandRequest("/update file list"));
+        filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        refreshLocalFilesList();
         Thread t = new Thread(() -> {
             try {
                 while (true) {
+                    am = Network.readObject();
                     if (am instanceof CommandRequest) {
                         if (((CommandRequest) am).getCommand().equals("/authOK")) {
                             setAuthorized(true);
