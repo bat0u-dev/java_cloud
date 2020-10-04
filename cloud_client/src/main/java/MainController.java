@@ -11,7 +11,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +28,7 @@ import java.util.List;
 public class MainController implements Initializable {
 
     @FXML
-    HBox authPanel, mainUIPanel;
+    HBox authPanel,mainUIPanel;
 
     @FXML
     TextField loginField;
@@ -159,7 +161,7 @@ public class MainController implements Initializable {
         });
     }
 
-    public void pressOnDownloadBtn(ActionEvent actionEvent) {//Добавить проверку на уже существующий файл и диалог о замене существующего файла!
+    public void pressOnDownloadBtn(ActionEvent actionEvent) {
         ObservableList<String> fileNamesList = filesListServer.getSelectionModel().getSelectedItems();
         for (String fileName : fileNamesList) {
             if (!fileName.equals("")) {
