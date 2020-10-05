@@ -28,7 +28,7 @@ import java.util.List;
 public class MainController implements Initializable {
 
     @FXML
-    HBox authPanel,mainUIPanel;
+    HBox authPanel, mainUIPanel;
 
     @FXML
     TextField loginField;
@@ -67,12 +67,12 @@ public class MainController implements Initializable {
                     if (am instanceof CommandRequest) {
                         if (((CommandRequest) am).getCommand().equals("/authOK")) {
                             setAuthorized(true);
+                            Network.sendMsg(new CommandRequest("/update file list"));
                             break;
                         }
                     }
                 }
                 while (true) {
-                    clickToChooseFileListener();
                     am = Network.readObject();
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
@@ -83,8 +83,6 @@ public class MainController implements Initializable {
                                 Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION, "File " + fm.getFilename()
                                         + " already exists in client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
                                 if (Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()))) {
-//                                    fileExistsAlert.setX(rootNode.getLayoutX());//Как получить координаты основного окна? Разобраться!
-//                                    fileExistsAlert.setY(rootNode.getLayoutY());
                                     fileExistsAlert.getModality();
                                     fileExistsAlert.showAndWait();
                                     if (fileExistsAlert.getResult() == ButtonType.OK) {
@@ -154,8 +152,7 @@ public class MainController implements Initializable {
             @Override
             public void handle(MouseEvent click) {
                 if (click.getClickCount() == 2) {
-                    tfFileName.setText(filesListLocal.getSelectionModel().getSelectedItem());//надо избавится от текстового
-                    //поля, и добавить возможность групповой передачи файлов
+                    tfFileName.setText(filesListLocal.getSelectionModel().getSelectedItem());
                 }
             }
         });
@@ -175,8 +172,6 @@ public class MainController implements Initializable {
 
     public void pressOnUploadBtn(ActionEvent actionEvent) {
 
-        //Нужно ли в случае с выгрузкой на сервер реализовать с изначальной
-        // отсылкой комманды на ожидание передачи файла с клиента на  сервер???
         Network.sendMsg(new CommandRequest("/upload"));
         ObservableList<String> fileNamesList = filesListLocal.getSelectionModel().getSelectedItems();
         for (String fileName : fileNamesList) {
@@ -210,7 +205,7 @@ public class MainController implements Initializable {
         });
     }
 
-    public void getServerFilesList(ActionEvent actionEvent) {//доделать обновление серверного списка файлов на клиенте
+    public void getServerFilesList(ActionEvent actionEvent) {
         updateUI(() -> {
             filesListLocal.getItems().clear();
             Network.sendMsg(new CommandRequest("/update file list"));
@@ -229,7 +224,7 @@ public class MainController implements Initializable {
         });
     }
 
-    public void DelFromLocalStorage(ActionEvent actionEvent) {//работает нерпавильно! Отладить!
+    public void DelFromLocalStorage(ActionEvent actionEvent) {
         String deletedFileName = filesListLocal.getSelectionModel().getSelectedItem();
         try {
             if (deletedFileName != null) {

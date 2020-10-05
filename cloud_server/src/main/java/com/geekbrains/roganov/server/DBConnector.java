@@ -23,7 +23,7 @@ public class DBConnector {
         String password = "masterkey";
         try {
             Class.forName(driver).getDeclaredConstructor().newInstance();
-//            System.out.println("Введите наименование базы данных");
+//            System.out.println("Введите наименование базы данных");//можно добавить форму регистрации нового пользователя и форму указания строки подключения к базе данных
 //            dbName = userInput.nextLine();
 //            System.out.println("Введите логин");
 //            username = userInput.nextLine();
@@ -55,7 +55,7 @@ public class DBConnector {
         try {
             Statement stmt = connection.createStatement();
             String query = "SELECT username FROM myJCloudUsers WHERE login = " + login + " AND password = " + password
-            + ";";
+            + ";";//переписать с подготовленными запросами!
             ResultSet rs = stmt.executeQuery(query);
             if(rs.next()){
                 return rs.getString(1);
@@ -71,15 +71,15 @@ public class DBConnector {
         connectToDB();
         try {
             Statement stmt = connection.createStatement();
-            String query = "SELECT * FROM personnel.employees";
+            String query = "SELECT * FROM personnel.employees";//переписать с подготовленными запросами!
             ResultSet rs = stmt.executeQuery(query);
             ArrayList<String> list = new ArrayList<>();
             while(rs.next()){
                 list.add(rs.getString("name"));
             }
             System.out.println(list);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

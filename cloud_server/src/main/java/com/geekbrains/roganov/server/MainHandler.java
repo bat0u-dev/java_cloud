@@ -24,7 +24,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 }
             } else if (msg instanceof CommandRequest) {
                 switch (((CommandRequest) msg).getCommand()) {
-//                    case "/authorize":
+//                    case "/authorize"://вынесемно в отдельный handler
 //                        authorizationProcessed = true;
 //                        break;
                     case "/update file list":
@@ -44,7 +44,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                             + ((FileMessage) msg).getFilename()), ((FileMessage) msg).getData(), StandardOpenOption.CREATE);
                 }
             }
-//            else if(authorizationProcessed){
+//            else if(authorizationProcessed){//вынесемно в отдельный handler
 //                if(msg instanceof AuthorizationData){
 ////                    String userName = DBConnector.getUserNameByLogAndPass(((AuthorizationData) msg).getLogin()
 ////                            ,((AuthorizationData) msg).getPassword());
