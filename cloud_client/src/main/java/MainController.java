@@ -1,29 +1,21 @@
 import com.geekbrains.roganov.common.*;
-import com.sun.javafx.scene.SceneHelper;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-
-import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.List;
 
 public class MainController implements Initializable {
 
@@ -38,6 +30,9 @@ public class MainController implements Initializable {
 
     @FXML
     Button connectBtn;
+
+    @FXML
+    Button registrationBtn;
 
     @FXML
     TextField tfFileName;
@@ -242,5 +237,8 @@ public class MainController implements Initializable {
         } else {
             Platform.runLater(r);
         }
+    }
+
+    public void registerNewUser(ActionEvent actionEvent) {
     }
 }

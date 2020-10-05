@@ -1,32 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<?import javafx.geometry.Insets?>
-<VBox fx:id="rootNode" alignment="TOP_LEFT" prefHeight="400.0" prefWidth="594" style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
+<VBox fx:id="rootNode" alignment="TOP_LEFT" prefHeight="400.0" prefWidth="594"
+      style="-fx-background-color: linear-gradient(#fff 0%, #eee 10%, #ddd 90%, #bbb 100%);"
+      xmlns="http://javafx.com/javafx/8.0.261" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainController">
     <HBox fx:id="authPanel">
         <TextField fx:id="loginField" promptText="login" HBox.hgrow="ALWAYS"/>
         <PasswordField fx:id="passwordField" promptText="password" HBox.hgrow="ALWAYS"/>
-        <Button fx:id="connectBtn" onAction="#sendAuthData" prefHeight="25.0" prefWidth="100.0" text="Authorize" HBox.hgrow="ALWAYS"/>
+    </HBox>
+    <HBox prefHeight="100.0" prefWidth="200.0">
+        <Button fx:id="connectBtn" onAction="#sendAuthData" prefHeight="25.0" prefWidth="100.0" text="Авторизация"
+                HBox.hgrow="ALWAYS"/>
+        <Button fx:id="registrationBtn" onAction="#registerNewUser" prefHeight="25.0" prefWidth="100.0"
+                text="Регистрация"/>
     </HBox>
     <HBox fx:id="mainUIPanel">
         <VBox>
-        <HBox>
-            <TextField fx:id="tfFileName" focusTraversable="false" promptText="Укажите имя файла на сервере, который хотите скачать" HBox.hgrow="ALWAYS" />
-            <Button onAction="#pressOnDownloadBtn" text="Скачать" />
-            <Button onAction="#pressOnUploadBtn" text="Отправить на сервер" />
-            <Button fx:id="btnGetSrvList" onAction="#getServerFilesList" text="Обновить с сервера" />
-            <Button onAction="#DelFromLocalStorage" text="Удалить на клиенте" />
-        </HBox>
-        <HBox>
-            <VBox HBox.hgrow="ALWAYS"><Label text="Local files" HBox.hgrow="ALWAYS" />
-            <ListView fx:id="filesListLocal" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
-            </VBox>
-            <VBox HBox.hgrow="ALWAYS"><Label text="Files on server" HBox.hgrow="ALWAYS" />
-            <ListView fx:id="filesListServer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
-            </VBox>
-        </HBox>
+            <HBox>
+                <TextField fx:id="tfFileName" focusTraversable="false"
+                           promptText="Укажите имя файла на сервере, который хотите скачать" HBox.hgrow="ALWAYS"/>
+                <Button onAction="#pressOnDownloadBtn" text="Скачать"/>
+                <Button onAction="#pressOnUploadBtn" text="Отправить на сервер"/>
+                <Button fx:id="btnGetSrvList" onAction="#getServerFilesList" text="Обновить с сервера"/>
+                <Button onAction="#DelFromLocalStorage" text="Удалить на клиенте"/>
+            </HBox>
+            <HBox>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label text="Local files" HBox.hgrow="ALWAYS"/>
+                    <ListView fx:id="filesListLocal" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
+                </VBox>
+                <VBox HBox.hgrow="ALWAYS">
+                    <Label text="Files on server" HBox.hgrow="ALWAYS"/>
+                    <ListView fx:id="filesListServer" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </HBox>
         </VBox>
     </HBox>
 </VBox>
