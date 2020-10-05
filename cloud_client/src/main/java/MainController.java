@@ -59,7 +59,7 @@ public class MainController implements Initializable {
             try {
                 while (true) {
                     am = Network.readObject();
-                    if (am instanceof CommandRequest) {
+                    if (am instanceof CommandRequest) {//Нужно добавить кнопку выхода!
                         if (((CommandRequest) am).getCommand().equals("/authOK")) {
                             setAuthorized(true);
                             Network.sendMsg(new CommandRequest("/update file list"));
