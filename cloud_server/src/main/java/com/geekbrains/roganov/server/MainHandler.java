@@ -22,17 +22,23 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                     ctx.writeAndFlush(fm);
                 }
             } else if (msg instanceof CommandRequest) {
-                if (((CommandRequest) msg).getCommand().equals("/update file list")) {
-                    ServerFilesList currList = new ServerFilesList("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\");
-                    ctx.writeAndFlush(currList);
-                } else if (((CommandRequest) msg).getCommand().equals("/upload")) {
-                    getFileMessage = true;
+                switch (((CommandRequest) msg).getCommand()) {
+                    case "/update file list":
+                        ServerFilesList currList = new ServerFilesList("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\");
+                        ctx.writeAndFlush(currList);
+                        break;
+                    case "/upload":
+                        getFileMessage = true;
+                        break;
+                    case "/stopUpload":
+                        getFileMessage = false;
+                        break;
                 }
-            }
-
-            if (msg instanceof FileMessage && getFileMessage) {
-                Files.write(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\"
-                        + ((FileMessage) msg).getFilename()), ((FileMessage) msg).getData(), StandardOpenOption.CREATE);
+            } else if (getFileMessage) {
+                if(msg instanceof FileMessage) {
+                    Files.write(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\"
+                            + ((FileMessage) msg).getFilename()), ((FileMessage) msg).getData(), StandardOpenOption.CREATE);
+                }
             }
         } finally {
             ReferenceCountUtil.release(msg);

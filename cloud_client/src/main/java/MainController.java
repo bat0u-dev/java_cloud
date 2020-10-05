@@ -1,13 +1,13 @@
 import com.geekbrains.roganov.common.*;
 import com.sun.javafx.scene.SceneHelper;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ListView;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
@@ -18,12 +18,13 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
+
+    @FXML
+    Node rootNode;
     @FXML
     TextField tfFileName;
 
@@ -39,6 +40,8 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
         Network.sendMsg(new CommandRequest("/update file list"));
+        filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         refreshLocalFilesList();
         Thread t = new Thread(() -> {
             try {
@@ -54,8 +57,8 @@ public class MainController implements Initializable {
                                 Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION, "File " + fm.getFilename()
                                         + " already exists in client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
                                 if (Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()))) {
-                                    fileExistsAlert.setX(filesListLocal.getLayoutX());//Как получить координаты основного окна? Разобраться!
-                                    fileExistsAlert.setY(filesListLocal.getLayoutY());
+                                    fileExistsAlert.setX(rootNode.getLayoutX());//Как получить координаты основного окна? Разобраться!
+                                    fileExistsAlert.setY(rootNode.getLayoutY());
                                     fileExistsAlert.getModality();
                                     fileExistsAlert.showAndWait();
                                     if (fileExistsAlert.getResult() == ButtonType.OK) {
@@ -64,6 +67,12 @@ public class MainController implements Initializable {
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
+                                    }
+                                } else {
+                                    try {
+                                        Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
                                     }
                                 }
                             }
@@ -97,26 +106,47 @@ public class MainController implements Initializable {
             @Override
             public void handle(MouseEvent click) {
                 if (click.getClickCount() == 2) {
-                    tfFileName.setText(filesListLocal.getSelectionModel().getSelectedItem());
+                    tfFileName.setText(filesListLocal.getSelectionModel().getSelectedItem());//надо избавится от текстового
+                    //поля, и добавить возможность групповой передачи файлов
                 }
             }
         });
     }
 
     public void pressOnDownloadBtn(ActionEvent actionEvent) {//Добавить проверку на уже существующий файл и диалог о замене существующего файла!
-        if (tfFileName.getLength() > 0) {
-            Network.sendMsg(new FileRequest(tfFileName.getText()));
-            tfFileName.clear();
-            Network.sendMsg(new CommandRequest("/update file list"));
-            refreshLocalFilesList();
+        ObservableList<String> fileNamesList = filesListServer.getSelectionModel().getSelectedItems();
+        for (String fileName : fileNamesList) {
+            if (!fileName.equals("")) {
+                Network.sendMsg(new FileRequest(fileName));
+                tfFileName.clear();
+                Network.sendMsg(new CommandRequest("/update file list"));
+                refreshLocalFilesList();
+            }
         }
     }
 
-    public void getServerFilesList(ActionEvent actionEvent) {//доделать обновление серверного списка файлов на клиенте
-        updateUI(() -> {
-            filesListLocal.getItems().clear();
+    public void pressOnUploadBtn(ActionEvent actionEvent) {
+
+        //Нужно ли в случае с выгрузкой на сервер реализовать с изначальной
+        // отсылкой комманды на ожидание передачи файла с клиента на  сервер???
+        Network.sendMsg(new CommandRequest("/upload"));
+        ObservableList<String> fileNamesList = filesListLocal.getSelectionModel().getSelectedItems();
+        for (String fileName : fileNamesList) {
+            try {
+                if (!fileName.equals("")) {
+                    Network.sendMsg(new FileMessage(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fileName)));
+                }//Сделать по аналогии с alert о замене существующего файла на сервере! Можно добавить respond класс
+                // ответ от сервера, что такой файл уже есть и перезаписывать при согласии пользователя
+                // (на сервере boolean флаг isReplaced делать true, и добавить в условие Files.write())
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+            Network.sendMsg(new CommandRequest("/stopUpload"));//необходим ли маркер?
+        // Или будет работать и без него по умолчанию?!Проверить!
+            tfFileName.clear();
             Network.sendMsg(new CommandRequest("/update file list"));
-        });
+            refreshLocalFilesList();
     }
 
     public void refreshLocalFilesList() {
@@ -132,6 +162,13 @@ public class MainController implements Initializable {
         });
     }
 
+    public void getServerFilesList(ActionEvent actionEvent) {//доделать обновление серверного списка файлов на клиенте
+        updateUI(() -> {
+            filesListLocal.getItems().clear();
+            Network.sendMsg(new CommandRequest("/update file list"));
+        });
+    }
+
     public void refreshServerFilesList(ArrayList<String> serverList) {
         updateUI(() -> {
             filesListServer.getItems().clear();
@@ -144,32 +181,6 @@ public class MainController implements Initializable {
         });
     }
 
-    public static void updateUI(Runnable r) {
-        if (Platform.isFxApplicationThread()) {
-            r.run();
-        } else {
-            Platform.runLater(r);
-        }
-    }
-
-
-    public void pressOnUploadBtn(ActionEvent actionEvent) {
-        try {
-            Network.sendMsg(new CommandRequest("/upload"));//Нужно ли в случае с выгрузкой на сервер реализовать с изначальной
-            // отсылкой комманды на ожидание передачи файла с клиента на  сервер???
-            if (tfFileName.getLength() > 0) {
-
-                Network.sendMsg(new FileMessage(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + tfFileName.getText())));
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        tfFileName.clear();
-        Network.sendMsg(new CommandRequest("/update file list"));
-        refreshLocalFilesList();
-    }
-
     public void DelFromLocalStorage(ActionEvent actionEvent) {//работает нерпавильно! Отладить!
         String deletedFileName = filesListLocal.getSelectionModel().getSelectedItem();
         try {
@@ -179,6 +190,14 @@ public class MainController implements Initializable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void updateUI(Runnable r) {
+        if (Platform.isFxApplicationThread()) {
+            r.run();
+        } else {
+            Platform.runLater(r);
         }
     }
 }
