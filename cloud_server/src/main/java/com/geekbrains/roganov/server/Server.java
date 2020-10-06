@@ -22,12 +22,13 @@ public class Server {
                             socketChannel.pipeline().addLast(
                                     new ObjectDecoder(50 * 1024 * 1024, ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
+                                    new AuthorizeHandler(),
                                     new MainHandler()
                             );
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
-            ChannelFuture future = b.bind(8189).sync();
+            ChannelFuture future = b.bind(8188).sync();
             System.out.println("Server started");
             future.channel().closeFuture().sync();
         } finally {

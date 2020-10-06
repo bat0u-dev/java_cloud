@@ -12,7 +12,7 @@ public class Network {
 
     public static void start() {
         try {
-            socket = new Socket("localhost", 8189);
+            socket = new Socket("localhost", 8188);
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
         } catch (IOException e) {
