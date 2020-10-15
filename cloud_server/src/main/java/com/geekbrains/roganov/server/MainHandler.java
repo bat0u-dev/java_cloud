@@ -24,7 +24,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 }
             } else if (msg instanceof CommandRequest) {
                 switch (((CommandRequest) msg).getCommand()) {
-//                    case "/authorize"://вынесемно в отдельный handler
+//                    case "/authorize"://вынесено в отдельный handler
 //                        authorizationProcessed = true;
 //                        break;
                     case "/update file list":
