@@ -49,7 +49,7 @@ public class MainController implements Initializable {
     ListView<String> filesListServer;
 
     private AbstractMessage am;
-    private boolean isAuthorized;
+    private boolean isAuthorized;//надо добавить кнопку выхода из клиента и сообщение при вводе некоректных данных аторизации.
 
 
     @Override
@@ -133,8 +133,8 @@ public class MainController implements Initializable {
     }
 
     public void sendAuthData() {
-        Network.sendMsg(new CommandRequest("/authorize"));
-//        Network.sendMsg(new AuthorizationData(loginField.getText(), passwordField.getText()));
+//        Network.sendMsg(new CommandRequest("/authorize"));
+        Network.sendMsg(new AuthorizationData(loginField.getText(), passwordField.getText()));
         loginField.clear();
         passwordField.clear();
     }
