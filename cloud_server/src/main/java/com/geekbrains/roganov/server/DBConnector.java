@@ -9,6 +9,8 @@ import java.util.Scanner;
 
 public class DBConnector {
     private static Connection connection;
+    private String login;
+    private String password;
 
     public static Connection getConnection() {
         return connection;

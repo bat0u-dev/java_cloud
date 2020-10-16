@@ -6,6 +6,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class AuthorizeHandler extends ChannelInboundHandlerAdapter {
 
     @Override
@@ -40,8 +45,13 @@ public class AuthorizeHandler extends ChannelInboundHandlerAdapter {
             //Решить, как лучше сделать!
             DBConnector connector = new DBConnector();
             connector.connectToDB();
-            if (!connector.getUserNameByLogAndPass(((AuthorizationData) msg).getLogin(), ((AuthorizationData) msg).getPassword()).equals("Incorrect authorization data.")) {
+            String username = connector.getUserNameByLogAndPass(((AuthorizationData) msg).getLogin(), ((AuthorizationData) msg).getPassword());
+            if (!username.equals("Incorrect authorization data.")) {
                 ctx.writeAndFlush(new CommandRequest("/authOK"));
+                if(!Files.exists(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username)))
+                {
+                    Files.createDirectory(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username));
+                }
             }
         } else {
             ctx.fireChannelRead(msg);

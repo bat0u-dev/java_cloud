@@ -56,7 +56,9 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
         setAuthorized(false);
+        if(isAuthorized){
         Network.sendMsg(new CommandRequest("/update file list"));
+        }
         filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         refreshLocalFilesList();
@@ -67,7 +69,7 @@ public class MainController implements Initializable {
                     if (am instanceof CommandRequest) {
                         if (((CommandRequest) am).getCommand().equals("/authOK")) {
                             setAuthorized(true);
-                            Network.sendMsg(new CommandRequest("/update file list"));
+                            //Network.sendMsg(new CommandRequest("/update file list"));
                             break;
                         }
                     }
