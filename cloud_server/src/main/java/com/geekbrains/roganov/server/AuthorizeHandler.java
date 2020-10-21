@@ -48,6 +48,7 @@ public class AuthorizeHandler extends ChannelInboundHandlerAdapter {
             String username = connector.getUserNameByLogAndPass(((AuthorizationData) msg).getLogin(), ((AuthorizationData) msg).getPassword());
             if (!username.equals("Incorrect authorization data.")) {
                 ctx.writeAndFlush(new CommandRequest("/authOK"));
+                ctx.fireChannelRead(msg);
                 if(!Files.exists(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username)))
                 {
                     Files.createDirectory(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username));
