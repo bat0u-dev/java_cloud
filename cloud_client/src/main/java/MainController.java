@@ -31,6 +31,9 @@ public class MainController implements Initializable {
     HBox authPanel, mainUIPanel;
 
     @FXML
+    ButtonBar btnBar;
+
+    @FXML
     TextField loginField;
 
     @FXML
@@ -38,6 +41,9 @@ public class MainController implements Initializable {
 
     @FXML
     Button connectBtn;
+
+    @FXML
+    Button btnExit;
 
     @FXML
     TextField tfFileName;
@@ -56,25 +62,29 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         Network.start();
         setAuthorized(false);
-        if(isAuthorized){
-        Network.sendMsg(new CommandRequest("/update file list"));
-        }
         filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         refreshLocalFilesList();
+//        if(isAuthorized){
+//            Network.sendMsg(new CommandRequest("/update file list"));
+//        }
         Thread t = new Thread(() -> {
             try {
                 while (true) {
                     am = Network.readObject();
                     if (am instanceof CommandRequest) {
                         if (((CommandRequest) am).getCommand().equals("/authOK")) {
+                            isAuthorized = true;
                             setAuthorized(true);
-                            //Network.sendMsg(new CommandRequest("/update file list"));
+                            Network.sendMsg(new CommandRequest("/update file list"));
                             break;
                         }
                     }
                 }
                 while (true) {
+//                    if(isAuthorized){
+//                        Network.sendMsg(new CommandRequest("/update file list"));
+//                    }
                     am = Network.readObject();
                     clickToChooseFileListener();
                     if (am instanceof FileMessage) {
@@ -126,11 +136,15 @@ public class MainController implements Initializable {
             authPanel.setManaged(false);
             mainUIPanel.setVisible(true);
             mainUIPanel.setManaged(true);
+            btnBar.setVisible(true);
+            btnBar.setManaged(true);
         } else {
             authPanel.setVisible(true);
             authPanel.setManaged(true);
             mainUIPanel.setVisible(false);
             mainUIPanel.setManaged(false);
+            btnBar.setVisible(false);
+            btnBar.setManaged(false);
         }
     }
 
@@ -187,7 +201,7 @@ public class MainController implements Initializable {
                 e.printStackTrace();
             }
         }
-        Network.sendMsg(new CommandRequest("/stopUpload"));//необходим ли маркер?
+        //Network.sendMsg(new CommandRequest("/stopUpload"));//необходим ли маркер?
         // Или будет работать и без него по умолчанию?!Проверить!
         tfFileName.clear();
         Network.sendMsg(new CommandRequest("/update file list"));
@@ -244,5 +258,10 @@ public class MainController implements Initializable {
         } else {
             Platform.runLater(r);
         }
+    }
+
+    public void exit(ActionEvent actionEvent) {
+        isAuthorized = false;
+        setAuthorized(false);
     }
 }

@@ -44,7 +44,7 @@ public class MainHandler extends ChannelInboundHandlerAdapter {
                 }
             } else if (getFileMessage) {
                 if(msg instanceof FileMessage) {
-                    Files.write(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username
+                    Files.write(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username + "\\"
                             + ((FileMessage) msg).getFilename()), ((FileMessage) msg).getData(), StandardOpenOption.CREATE);
                 }
             }
