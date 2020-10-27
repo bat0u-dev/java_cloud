@@ -11,29 +11,52 @@ import java.nio.file.StandardOpenOption;
 
 public class MainHandler extends ChannelInboundHandlerAdapter {
     boolean getFileMessage;
+    String username;
+    DBConnector connector = new DBConnector();
+
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         try {
-            if (msg instanceof FileRequest) {
+            if(msg instanceof AuthorizationData){
+                username = connector.getUserNameByLogAndPass(((AuthorizationData) msg).getLogin(),((AuthorizationData) msg).getPassword());
+            } else if (msg instanceof FileRequest) {
                 FileRequest fr = (FileRequest) msg;
-                if (Files.exists(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + fr.getFilename()))) {
-                    FileMessage fm = new FileMessage(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + fr.getFilename()));
+                if (Files.exists(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username + "\\" + fr.getFilename()))) {
+                    FileMessage fm = new FileMessage(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username + "\\" + fr.getFilename()));
                     ctx.writeAndFlush(fm);
                 }
             } else if (msg instanceof CommandRequest) {
-                if (((CommandRequest) msg).getCommand().equals("/update file list")) {
-                    ServerFilesList currList = new ServerFilesList("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\");
-                    ctx.writeAndFlush(currList);
-                } else if (((CommandRequest) msg).getCommand().equals("/upload")) {
-                    getFileMessage = true;
+                switch (((CommandRequest) msg).getCommand()) {
+//                    case "/authorize"://вынесено в отдельный handler
+//                        authorizationProcessed = true;
+//                        break;
+                    case "/update file list":
+                        ServerFilesList currList = new ServerFilesList("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username);
+                        ctx.writeAndFlush(currList);
+                        break;
+                    case "/upload":
+                        getFileMessage = true;
+                        break;
+                    case "/stopUpload":
+                        getFileMessage = false;
+                        break;
+                }
+            } else if (getFileMessage) {
+                if(msg instanceof FileMessage) {
+                    Files.write(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\" + username + "\\"
+                            + ((FileMessage) msg).getFilename()), ((FileMessage) msg).getData(), StandardOpenOption.CREATE);
                 }
             }
-
-            if (msg instanceof FileMessage && getFileMessage) {
-                Files.write(Paths.get("cloud_server\\src\\main\\java\\com\\geekbrains\\roganov\\server\\server_storage\\"
-                        + ((FileMessage) msg).getFilename()), ((FileMessage) msg).getData(), StandardOpenOption.CREATE);
-            }
+//            else if(authorizationProcessed){//вынесемно в отдельный handler
+//                if(msg instanceof AuthorizationData){
+////                    String userName = DBConnector.getUserNameByLogAndPass(((AuthorizationData) msg).getLogin()
+////                            ,((AuthorizationData) msg).getPassword());
+////                    if(!userName.equals("")){
+//                        ctx.writeAndFlush("/authOK");
+////                    }
+//                }
+//            }
         } finally {
             ReferenceCountUtil.release(msg);
         }
