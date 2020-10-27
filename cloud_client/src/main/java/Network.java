@@ -9,14 +9,17 @@ public class Network {
     private static Socket socket;
     private static ObjectEncoderOutputStream out;
     private static ObjectDecoderInputStream in;
+    static boolean isRun;
 
     public static void start() {
         try {
             socket = new Socket("localhost", 8188);
+            isRun = true;
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
         } catch (IOException e) {
             e.printStackTrace();
+            isRun = false;
         }
     }
 
@@ -25,16 +28,20 @@ public class Network {
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
+            isRun = false;
         }
         try {
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
+            isRun = false;
         }
         try {
             socket.close();
+            isRun = false;
         } catch (IOException e) {
             e.printStackTrace();
+            isRun = false;
         }
     }
 
@@ -44,12 +51,19 @@ public class Network {
             return true;
         } catch (IOException e) {
             e.printStackTrace();
+            isRun = false;
         }
         return false;
     }
 
-    public static AbstractMessage readObject() throws ClassNotFoundException, IOException {
-        Object obj = in.readObject();
+    public static AbstractMessage readObject(){
+        Object obj = null;
+        try {
+            obj = in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            isRun = false;
+        }
         return (AbstractMessage) obj;
     }
 }
