@@ -9,12 +9,14 @@ import java.util.Scanner;
 
 public class DBConnector {
     private static Connection connection;
+    private String login;
+    private String password;
 
     public static Connection getConnection() {
         return connection;
     }
 
-    public static boolean connectToDB(){//решить будет ли работа с базой в этом же классе или вынесена в отдельный?!
+    public boolean connectToDB(){//решить будет ли работа с базой в этом же классе или вынесена в отдельный?!
         Scanner userInput = new Scanner(System.in);
         String driver = "com.mysql.cj.jdbc.Driver";
         String dbURL = "jdbc:mysql://localhost:3306";
@@ -23,7 +25,7 @@ public class DBConnector {
         String password = "MASTERKEY";
         try {
             Class.forName(driver).getDeclaredConstructor().newInstance();
-//            System.out.println("Введите наименование базы данных");
+//            System.out.println("Введите наименование базы данных");//можно добавить форму регистрации нового пользователя и форму указания строки подключения к базе данных
 //            dbName = userInput.nextLine();
 //            System.out.println("Введите логин");
 //            username = userInput.nextLine();
@@ -50,21 +52,37 @@ public class DBConnector {
 //            }//закрыть правильно!
         }
     }
-    public static void main(String[] args) {
-        //java -classpath c:\Java\mysql-connector-java-8.0.11.jar;c:\Java Program
-        connectToDB();
+
+    public String getUserNameByLogAndPass(String login, String password){
         try {
             Statement stmt = connection.createStatement();
-            String query = "SELECT * FROM personnel.employees";
+            String query = "SELECT username FROM jcloudusers.users WHERE login = '" + login + "' AND password = '" + password
+            + "';";//переписать с подготовленными запросами!
             ResultSet rs = stmt.executeQuery(query);
-            ArrayList<String> list = new ArrayList<>();
-            while(rs.next()){
-                list.add(rs.getString("name"));
+            if(rs.next()){
+                return rs.getString(1);
             }
-            System.out.println(list);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return "Incorrect authorization data.";
+    }
+    public static void main(String[] args) {
+        //java -classpath c:\Java\mysql-connector-java-8.0.11.jar;c:\Java Program
+//        DBConnector connector = new DBConnector();
+//        connector.connectToDB();
+//        try {
+//            Statement stmt = connection.createStatement();
+//            String query = "SELECT * FROM personnel.employees";//переписать с подготовленными запросами!
+//            ResultSet rs = stmt.executeQuery(query);
+//            ArrayList<String> list = new ArrayList<>();
+//            while(rs.next()){
+//                list.add(rs.getString("name"));
+//            }
+//            System.out.println(list);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
     }
 }
 
