@@ -23,7 +23,7 @@ public class MainController implements Initializable {
     HBox authPanel, mainUIPanel;
 
     @FXML
-    Label authInfo = new Label("");
+    Label authInfo;
 
     @FXML
     ButtonBar btnBar;
@@ -74,8 +74,6 @@ public class MainController implements Initializable {
                             setAuthorized(true);
                             Network.sendMsg(new CommandRequest("/update file list"));
                             break;
-                        } else {
-                            authInfo.setText("Неправильный логин или пароль");
                         }
                     }
                 }
@@ -143,6 +141,9 @@ public class MainController implements Initializable {
     }
 
     public void sendAuthData() {
+        if(!isAuthorized) {
+            authInfo.setText("Неправильный логин или пароль");
+        }
         if (!Network.sessionRun) {
             startSession();
         }
@@ -261,5 +262,6 @@ public class MainController implements Initializable {
         Network.sessionRun = false;
         isAuthorized = false;
         setAuthorized(false);
+        authInfo.setText("Пожалуйста авторизуйтесь");
     }
 }
