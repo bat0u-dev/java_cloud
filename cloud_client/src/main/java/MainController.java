@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Paint;
 
 import java.io.IOException;
 import java.net.URL;
@@ -142,6 +143,7 @@ public class MainController implements Initializable {
 
     public void sendAuthData() {
         if(!isAuthorized) {
+            authInfo.setTextFill(Paint.valueOf("RED"));
             authInfo.setText("Неправильный логин или пароль");
         }
         if (!Network.sessionRun) {
@@ -262,6 +264,7 @@ public class MainController implements Initializable {
         Network.sessionRun = false;
         isAuthorized = false;
         setAuthorized(false);
+        authInfo.setTextFill(Paint.valueOf("BLACK"));
         authInfo.setText("Пожалуйста авторизуйтесь");
     }
 }
