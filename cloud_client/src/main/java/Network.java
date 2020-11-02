@@ -4,22 +4,23 @@ import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Network {
     private static Socket socket;
     private static ObjectEncoderOutputStream out;
     private static ObjectDecoderInputStream in;
-    static boolean isRun;
+    static boolean sessionRun;
 
     public static void start() {
         try {
             socket = new Socket("localhost", 8188);
-            isRun = true;
+            sessionRun = true;
             out = new ObjectEncoderOutputStream(socket.getOutputStream());
             in = new ObjectDecoderInputStream(socket.getInputStream(), 50 * 1024 * 1024);
         } catch (IOException e) {
             e.printStackTrace();
-            isRun = false;
+            sessionRun = false;
         }
     }
 
@@ -28,20 +29,20 @@ public class Network {
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
-            isRun = false;
+            sessionRun = false;
         }
         try {
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
-            isRun = false;
+            sessionRun = false;
         }
         try {
             socket.close();
-            isRun = false;
+            sessionRun = false;
         } catch (IOException e) {
             e.printStackTrace();
-            isRun = false;
+            sessionRun = false;
         }
     }
 
@@ -51,7 +52,7 @@ public class Network {
             return true;
         } catch (IOException e) {
             e.printStackTrace();
-            isRun = false;
+            sessionRun = false;
         }
         return false;
     }
@@ -60,9 +61,9 @@ public class Network {
         Object obj = null;
         try {
             obj = in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e ) {
             e.printStackTrace();
-            isRun = false;
+            sessionRun = false;
         }
         return (AbstractMessage) obj;
     }

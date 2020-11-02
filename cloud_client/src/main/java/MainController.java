@@ -23,6 +23,9 @@ public class MainController implements Initializable {
     HBox authPanel, mainUIPanel;
 
     @FXML
+    Label authInfo = new Label("");
+
+    @FXML
     ButtonBar btnBar;
 
     @FXML
@@ -52,14 +55,15 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        startSession();
+    }
+
+    public void startSession() {
         Network.start();
         setAuthorized(false);
         filesListLocal.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         filesListServer.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         refreshLocalFilesList();
-//        if(isAuthorized){
-//            Network.sendMsg(new CommandRequest("/update file list"));
-//        }
         Thread t = new Thread(() -> {
             try {
                 while (true) {
@@ -70,58 +74,49 @@ public class MainController implements Initializable {
                             setAuthorized(true);
                             Network.sendMsg(new CommandRequest("/update file list"));
                             break;
+                        } else {
+                            authInfo.setText("Неправильный логин или пароль");
                         }
                     }
                 }
-                while (true) {
-                    if(isAuthorized){
-                        if(!Network.isRun){
-                            Network.start();
-                        }
-                        am = Network.readObject();
-                        clickToChooseFileListener();
-                        if (am instanceof FileMessage) {
-                            FileMessage fm = (FileMessage) am;
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION, "File " + fm.getFilename()
-                                            + " already exists in client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
-                                    if (Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()))) {
-                                        fileExistsAlert.getModality();
-                                        fileExistsAlert.showAndWait();
-                                        if (fileExistsAlert.getResult() == ButtonType.OK) {
-                                            try {
-                                                Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    } else {
+                while (Network.sessionRun) {
+                    am = Network.readObject();
+                    clickToChooseFileListener();
+                    if (am instanceof FileMessage) {
+                        FileMessage fm = (FileMessage) am;
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                Alert fileExistsAlert = new Alert(Alert.AlertType.CONFIRMATION, "File " + fm.getFilename()
+                                        + " already exists in client storage. Do you want to replace it?", ButtonType.OK, ButtonType.CANCEL);
+                                if (Files.exists(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()))) {
+                                    fileExistsAlert.getModality();
+                                    fileExistsAlert.showAndWait();
+                                    if (fileExistsAlert.getResult() == ButtonType.OK) {
                                         try {
                                             Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
                                         } catch (IOException e) {
                                             e.printStackTrace();
                                         }
                                     }
+                                } else {
+                                    try {
+                                        Files.write(Paths.get("cloud_client\\src\\main\\java\\client_storage\\" + fm.getFilename()), fm.getData(), StandardOpenOption.CREATE);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            });
-                        } else if (am instanceof ServerFilesList) {
-                            ArrayList<String> serverList = ((ServerFilesList) am).getList();
-                            refreshServerFilesList(serverList);
-                            refreshLocalFilesList();
-                        }
-                    } else {
-                        break;
+                            }
+                        });
+                    } else if (am instanceof ServerFilesList) {
+                        ArrayList<String> serverList = ((ServerFilesList) am).getList();
+                        refreshServerFilesList(serverList);
+                        refreshLocalFilesList();
                     }
-                    //                    if(isAuthorized){
-//                        Network.sendMsg(new CommandRequest("/update file list"));
-//                    }
-
                 }
             } finally {
                 Network.stop();
-                Network.isRun = false;
+                Network.sessionRun = false;
             }
         });
         t.setDaemon(true);
@@ -148,10 +143,9 @@ public class MainController implements Initializable {
     }
 
     public void sendAuthData() {
-        if(!Network.isRun){
-            Network.start();
+        if (!Network.sessionRun) {
+            startSession();
         }
-//        Network.sendMsg(new CommandRequest("/authorize"));
         Network.sendMsg(new AuthorizationData(loginField.getText(), passwordField.getText()));
         loginField.clear();
         passwordField.clear();
@@ -263,9 +257,9 @@ public class MainController implements Initializable {
     }
 
     public void exit(ActionEvent actionEvent) {
-        isAuthorized = false;
         Network.stop();
-        Network.isRun = false;
+        Network.sessionRun = false;
+        isAuthorized = false;
         setAuthorized(false);
     }
 }
